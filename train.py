@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument("--gradient_accumulation_steps", type=int, default=4)
     parser.add_argument("--learning_rate", type=float, default=2e-4)
     parser.add_argument("--warmup_steps", type=int, default=50)
-    parser.add_argument("--max_seq_length", type=int, default=2048)
+    parser.add_argument("--max_length", type=int, default=2048)
     parser.add_argument("--bf16", action="store_true", default=True)
     parser.add_argument("--logging_steps", type=int, default=10)
     parser.add_argument("--eval_steps", type=int, default=250)
@@ -83,7 +83,7 @@ def main():
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
         warmup_steps=args.warmup_steps,
-        max_seq_length=args.max_seq_length,
+        max_length=args.max_length,
         bf16=args.bf16,
         logging_steps=args.logging_steps,
         eval_strategy="steps",
