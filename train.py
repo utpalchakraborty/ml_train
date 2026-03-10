@@ -101,6 +101,7 @@ def main():
     # Trainer
     trainer = SFTTrainer(
         model=model,
+        processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         peft_config=peft_config,
