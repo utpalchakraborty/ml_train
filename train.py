@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("--per_device_eval_batch_size", type=int, default=8)
     parser.add_argument("--gradient_accumulation_steps", type=int, default=4)
     parser.add_argument("--learning_rate", type=float, default=2e-4)
-    parser.add_argument("--warmup_ratio", type=float, default=0.1)
+    parser.add_argument("--warmup_steps", type=int, default=50)
     parser.add_argument("--max_seq_length", type=int, default=2048)
     parser.add_argument("--bf16", action="store_true", default=True)
     parser.add_argument("--logging_steps", type=int, default=10)
@@ -82,7 +82,8 @@ def main():
         per_device_eval_batch_size=args.per_device_eval_batch_size,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         learning_rate=args.learning_rate,
-        warmup_ratio=args.warmup_ratio,
+        warmup_steps=args.warmup_steps,
+        max_seq_length=args.max_seq_length,
         bf16=args.bf16,
         logging_steps=args.logging_steps,
         eval_strategy="steps",
@@ -104,7 +105,6 @@ def main():
         eval_dataset=val_dataset,
         peft_config=peft_config,
         args=training_args,
-        max_seq_length=args.max_seq_length,
     )
 
     print("Starting training...")
