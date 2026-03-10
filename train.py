@@ -5,7 +5,7 @@ Designed for RunPod GPU training.
 
 import argparse
 
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from trl import SFTConfig, SFTTrainer
@@ -18,6 +18,8 @@ def parse_args():
     parser.add_argument("--dataset_split", type=str, default="train_sft")
     parser.add_argument("--dataset_size", type=int, default=10000)
     parser.add_argument("--val_split", type=float, default=0.1)
+    parser.add_argument("--tokenized_data", type=str, default=None,
+                        help="Path to pre-tokenized data dir (from pretokenize.py). Skips dataset loading/tokenization.")
     parser.add_argument("--seed", type=int, default=42)
 
     # LoRA config
@@ -56,14 +58,18 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(args.model_name, torch_dtype="auto")
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
-    # Load and prepare dataset
-    print(f"Loading dataset: {args.dataset_name} ({args.dataset_split})")
-    dataset = load_dataset(args.dataset_name, split=args.dataset_split)
-    dataset = dataset.shuffle(seed=args.seed).select(range(args.dataset_size))
-
-    split = dataset.train_test_split(test_size=args.val_split, seed=args.seed)
-    train_dataset = split["train"].remove_columns(["prompt", "prompt_id"])
-    val_dataset = split["test"].remove_columns(["prompt", "prompt_id"])
+    # Load dataset
+    if args.tokenized_data:
+        print(f"Loading pre-tokenized data from {args.tokenized_data}")
+        train_dataset = load_from_disk(f"{args.tokenized_data}/train")
+        val_dataset = load_from_disk(f"{args.tokenized_data}/val")
+    else:
+        print(f"Loading dataset: {args.dataset_name} ({args.dataset_split})")
+        dataset = load_dataset(args.dataset_name, split=args.dataset_split)
+        dataset = dataset.shuffle(seed=args.seed).select(range(args.dataset_size))
+        split = dataset.train_test_split(test_size=args.val_split, seed=args.seed)
+        train_dataset = split["train"].remove_columns(["prompt", "prompt_id"])
+        val_dataset = split["test"].remove_columns(["prompt", "prompt_id"])
     print(f"Train: {len(train_dataset)}, Val: {len(val_dataset)}")
 
     # LoRA config

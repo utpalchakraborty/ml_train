@@ -1,12 +1,17 @@
-.PHONY: train eval setup
+.PHONY: train eval setup pretokenize
 
 setup:
 	uv sync
 	wandb login
 
+pretokenize:
+	uv run python pretokenize.py \
+		--dataset_size 200000 \
+		--max_length 1024
+
 train:
 	uv run python train.py \
-		--dataset_size 200000 \
+		--tokenized_data tokenized_data \
 		--lora_r 64 \
 		--lora_alpha 128 \
 		--lora_target_modules q_proj k_proj v_proj o_proj gate_proj up_proj down_proj \

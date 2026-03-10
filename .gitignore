@@ -13,6 +13,9 @@ wheels/
 sft_output/
 wandb/
 
+# Pre-tokenized data
+tokenized_data/
+
 # Jupyter
 .ipynb_checkpoints/
 
